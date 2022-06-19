@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html :class="{ 'theme-light': dark }" x-data="data()" lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Node Project</title>
+    <link href="/../assets/css/css2.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/../assets/css/tailwind.output.css" />
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+    <script src="/../assets/js/init-alpine.js"></script>
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css" /> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js" defer></script> -->
+    <script src="/../assets/js/06ca2b8f80.js" crossorigin="anonymous"></script>
+    <!-- <script src="/../assets/js/charts-lines.js" defer></script>
+    <script src="/../assets/js/charts-pie.js" defer></script> -->
+
+    <!--Regular Datatables CSS-->
+    <link href="/../assets/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/../assets/css/responsive.dataTables.min.css">
+    <style>
+        /*Overrides for Tailwind CSS */
+
+        /*Form fields*/
+        .dataTables_wrapper select,
+        .dataTables_wrapper .dataTables_filter input {
+            color: #4a5568;
+            /*text-gray-700*/
+            padding-left: 1rem;
+            /*pl-4*/
+            padding-right: 1rem;
+            /*pl-4*/
+            padding-top: .4rem;
+            /*pl-2*/
+            padding-bottom: .4rem;
+            /*pl-2*/
+            line-height: 1.25;
+            /*leading-tight*/
+            border-width: 1px;
+            /*border-2*/
+            border-radius: .25rem;
+            border-color: #c4c4c4;
+            /*border-gray-200*/
+            background-color: #fefefe;
+            /*bg-gray-200*/
+        }
+        .dataTables_wrapper select,
+        .dataTables_wrapper .dataTables_filter input:focus{
+            outline: 1px solid #ddd;
+        }
+
+        /*Row Hover*/
+        table.dataTable.hover tbody tr:hover,
+        table.dataTable.display tbody tr:hover {
+            background-color: #ebf4ff;
+            /*bg-indigo-100*/
+        }
+
+        /*Pagination Buttons*/
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            font-weight: 700;
+            /*font-bold*/
+            border-radius: .25rem;
+            /*rounded*/
+            border: 1px solid transparent;
+            /*border border-transparent*/
+        }
+
+        /*Pagination Buttons - Current selected */
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            color: #fff !important;
+            /*text-white*/
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .06);
+            /*shadow*/
+            font-weight: 700;
+            /*font-bold*/
+            border-radius: .25rem;
+            /*rounded*/
+            background: #667eea !important;
+            /*bg-indigo-500*/
+            border: 1px solid transparent;
+            /*border border-transparent*/
+        }
+
+        /*Pagination Buttons - Hover */
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            color: #fff !important;
+            /*text-white*/
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .06);
+            /*shadow*/
+            font-weight: 700;
+            /*font-bold*/
+            border-radius: .25rem;
+            /*rounded*/
+            background: #667eea !important;
+            /*bg-indigo-500*/
+            border: 1px solid transparent;
+            /*border border-transparent*/
+        }
+
+        /*Add padding to bottom border */
+        table.dataTable.no-footer {
+            border-bottom: 1px solid #e2e8f0;
+            /*border-b-1 border-gray-300*/
+            margin-top: 0.75em;
+            margin-bottom: 0.75em;
+        }
+
+        /*Change colour of responsive icon*/
+        table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before,
+        table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
+            background-color: #667eea !important;
+            /*bg-indigo-500*/
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+
+        ::-webkit-scrollbar-track {
+            box-shadow: inset 0 0 5px rgb(187, 187, 187);
+            border-radius: 10px;
+
+        }
+
+
+        ::-webkit-scrollbar-thumb {
+            background-color: rgb(162, 162, 162);
+            border-radius: 10px;
+        }
+
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #8a8a8aa6;
+        }
+
+        #toastr{
+            position: fixed;left:50%;z-index: 10;color: #ffffff;border-radius:2px;font-size:13px;font-weight:600;
+            /* display: none; */
+        }
+        .success{
+            background-color: #7E3AF2;
+        }
+        .error{
+            background-color: #d9534f;
+        }
+        #modal{
+            display: none;
+        }
+       #form_wraper{
+           display: none;
+       }
+    </style>
+
+</head>
+
+<body>

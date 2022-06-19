@@ -1,0 +1,645 @@
+<!-- jQuery -->
+<script type="text/javascript" src="/../assets/js/jquery-3.4.1.min.js"></script>
+
+<!--Datatables -->
+<script src="/../assets/js/jquery.dataTables.min.js"></script>
+<script src="/../assets/js/dataTables.responsive.min.js"></script>
+
+
+<script>
+    function notify(type, msg) {
+        if (type == "success") {
+            $('#toastr').removeClass('error');
+            $('#toastr').addClass('success');
+            $('#toast_text').text(msg);
+            $('#state_icon').html('<i class="fa-regular fa-circle-check" style="font-size: 18px;vertical-align: middle;"></i>')
+            $('#toastr').fadeIn();
+        } else {
+            $('#toastr').removeClass('success');
+            $('#toastr').addClass('error');
+            $('#toast_text').text(msg);
+            stateIcon.html('<i class="fa-solid fa-circle-exclamation" style="font-size: 18px;vertical-align: middle;"></i>')
+            $('#toastr').fadeIn();
+
+        }
+       
+    }
+// function showNotification(){
+//     const notification = new Notification('JS Notification',{
+//         body:"Hiii notiication from us"
+//     })
+// }
+// if (Notification.permission === 'granted') {
+//     showNotification()
+// } else if(Notification.permission === 'denied') {
+    
+// }else{
+//     Notification.requestPermission().then(permission =>{
+//         console.log(permission)
+        
+//     })
+// }
+
+    function formReset(form) {
+        form.trigger('reset')
+    }
+    
+
+    function loading(elem) {
+        elem.css({
+            "background-color": "#ddd",
+            "color": "#111111",
+            "outline": "none",
+            "border": "none",
+        });
+        elem.html('<i class="fas fa-circle-notch fa-spin"></i> Loading..');
+    }
+
+    // function loadingDiv(elem) {
+    //     elem.append('<i class="fas fa-spinner fa-pulse "></i> Loading..')
+    // }
+
+    function unload(elem, text) {
+        elem.css({
+            "background-color": "#7e3af2",
+            "color": "#fff",
+        })
+        elem.text(text)
+    }
+</script>
+<!-- get schedule -->
+<script>
+    var schedule_id = $('#schedule_id').val();
+    var schedule = $('#schedule_id');
+    var doc_fees = $('#fees')
+    $(function() {
+        $(document).on('change', '#doctor_id', function() {
+            schedule.html('<option selected disabled>Select Schedule</option>');
+            var doctor_id = $(this).val();
+            var text = $("#doctor_id option:selected").text();
+            $.ajax({
+
+                url: "/get/schedule/",
+                type: "POST",
+                data: {
+                    doctor_id: doctor_id
+                },
+
+                success: function(data) {
+                    // console.log(data.schedules[0]._id);
+                    $.each(data.schedules, (key, value) => {
+                        //    console.log(value._id)
+                        html = "<option value=" + value._id + ">" + value.day + " " + value.start_time + "-" + value.end_time + "</option>";
+                        schedule.append(html);
+                    })
+                }
+            });
+        });
+        setTimeout(() => {
+            $(function() {
+                $(document).on('change', '#doctor_id', function() {
+                    var doctor_id = $(this).val();
+                    var text = $("#doctor_id option:selected").text();
+                    $.ajax({
+                        url: "/get/fees/",
+                        type: "POST",
+                        data: {
+                            doctor_id: doctor_id
+                        },
+
+                        success: function(data) {
+                            var value = JSON.parse(data.fees)
+                            doc_fees.val(value)
+                        }
+                    });
+                });
+            });
+        }, 2000)
+
+    });
+</script>
+<!-- get app dates -->
+<script>
+    var app_date_value = $('#app_date').val();
+    var app_date = $('#app_date');
+    var doc_fees = $('#fees');
+
+    $(function() {
+        $(document).on('change', '#schedule_id', function() {
+            app_date.html('<option selected disabled>Select Date</option>');
+            var schedule_id = $(this).val();
+            var text = $("#schdule_id option:selected").text();
+            $.ajax({
+
+                url: "/get/date/",
+                type: "POST",
+                data: {
+                    schedule_id: schedule_id
+                },
+
+                success: function(data) {
+                    $.each(data, (key, value) => {
+                        var valSplit = value.split('T')
+                        var trimedTime = valSplit[0];
+                        var formatSplit = trimedTime.split('-')
+                        var formatted = formatSplit[2] + '-' + formatSplit[1] + '-' + formatSplit[0]
+                        html = "<option value=" + valSplit[0] + ">" + formatted + "</option>";
+                        app_date.append(html);
+                    })
+
+                    // console.log(data)
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    var closeBtn = $('#close')
+    var stateIcon = $('#state_icon');
+    var toastText = $('#toast_text')
+    var toastr = $('#toastr');
+    var formBtn = $('#formBtn')
+    var bool = false
+    var declareAdd3 = true
+    if (declareAdd3 == true) {
+        let form = $('#appForm');
+        // form.hide()
+        let table = $('#appTable')
+
+        // toastr.hide();
+        closeBtn.on('click', () => {
+            toastr.fadeOut();
+        })
+        $('#add_App').click(() => {
+
+        })
+
+        form.on('submit', (e) => {
+            e.preventDefault();
+            loading(formBtn)
+            var FormData = form.serialize();
+            setTimeout(() => {
+                $.ajax({
+                    type: "POST",
+                    url: "/app/add",
+                    data: FormData,
+                    success: function(data) {
+                        unload(formBtn)
+                        if (!data.err) {
+                            notify('success', 'Appointment added successfully')
+                            $('#appForm').trigger("reset");
+                            setTimeout(() => {
+                                    declareAdd = false
+                                    $('body').load('#tbl_wrap')
+                                }, 500)
+                                // $.each(data, (key, val) => {
+                                //     $('#example > tbody > tr').append('<td>' + val + '<td/>')
+                                // })
+
+                        } else {
+                            unload(formBtn)
+                            notify('error', 'Something Went Wrong!')
+                            setTimeout(() => {
+                                declareAdd = false
+                                $('body').load('#tbl_wrap')
+                            }, 500)
+                            console.log(data.err)
+                                // $.each(data.err, (key, value) => {
+                                //     toastText.text(key + ' : ' + value)
+                                // })
+
+                        }
+
+                    },
+                    error: function(data) {
+                        if (data.err) {
+
+                        }
+                    }
+
+                })
+
+            }, 1000)
+
+        });
+    }
+</script>
+<!-- doctor functions -->
+<script>
+    var declareAdd = true;
+    if (declareAdd == true) {
+        let docForm = $('#docForm');
+        let docformBtn = $('#formBtn')
+        docForm.on('submit', (e) => {
+            e.preventDefault();
+            loading(docformBtn)
+            var Form_Data = docForm.serialize();
+            setTimeout(() => {
+                $.ajax({
+                    type: "POST",
+                    url: "/doctor/add",
+                    data: Form_Data,
+                    success: function(data) {
+
+                        if (!data.err) {
+                            unload(docformBtn, 'ADD DOCTOR')
+                            formReset($('#docForm'))
+                            notify('success', 'Doctor Added Successfully')
+                            setTimeout(() => {
+                                declareAdd = false
+                                $('body').load('#tbl_wrap')
+                            }, 500)
+                        } else {
+                            console.log(data.err)
+                            notify('error', 'Something went wrong!')
+                            unload(docformBtn, 'ADD DOCTOR')
+                            setTimeout(() => {
+                                declareAdd = false
+                                $('body').load('#tbl_wrap')
+                            }, 500)
+                        }
+
+                    },
+                    error: function(data) {
+                        notify('error', 'Something went wrong!')
+                    }
+
+                })
+
+            }, 500)
+
+        });
+
+    }
+</script>
+<script>
+    var declareDel = true;
+    if (declareDel == true) {
+        let deleteBtns = document.querySelectorAll('.deleteBtn');
+        let confirmDelete = document.getElementById('confirmDelete')
+        let closeModal = document.getElementById('model_close');
+        closeModal.addEventListener('click', () => {
+            $('#modal').fadeOut();
+            setTimeout(() => {
+                $('#main_div').css({
+                    "opacity": "1"
+                })
+            }, 500)
+
+        })
+        for (let i = 0; i < deleteBtns.length; i++) {
+            deleteBtns[i].addEventListener('click', (e) => {
+                e.preventDefault();
+                $('#main_div').css({
+                    "opacity": "0.4"
+                })
+                $('#modal').fadeIn();
+                let url = deleteBtns[i].getAttribute('href');
+                confirmDelete.addEventListener('click', () => {
+                    confirmDelete.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Loading';
+                    setTimeout(function() {
+                        $.ajax({
+                            type: 'GET',
+                            url: url,
+                            success: function(data) {
+                                if (data == 'deleted') {
+                                    $('#modal').fadeOut();
+                                    $('#main_div').css({
+                                        "opacity": "1"
+                                    })
+                                    notify('success', 'Doctor deleted successfully')
+                                    setTimeout(() => {
+                                        $('body').load('#tbl_wrap')
+                                        declareDel = false
+                                    }, 500)
+                                }
+                            },
+                            error: function(data) {
+                                console.log('server error')
+                            }
+                        })
+                    }, 1000)
+                })
+
+            })
+
+        }
+    }
+</script>
+<script>
+    var declareUpdate = true;
+    console.log(declareUpdate)
+    if (declareUpdate == true) {
+        let editBtns = document.querySelectorAll('.editBtn');
+        let updateForm = document.getElementById('updateDocform');
+        let updateBtn = document.getElementById('updateBtn');
+        $('#closeupdate').on('click', () => {
+            $('#form_wraper').hide();
+        })
+        for (let i = 0; i < editBtns.length; i++) {
+
+            editBtns[i].addEventListener('click', function(e) {
+                e.preventDefault();
+                $('#form_wraper').show()
+                let url = editBtns[i].getAttribute('href')
+                console.log(url)
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    success: function(data) {
+                        $.each(data, (key, val) => {
+                            if (key == '_id') {
+                                document.getElementById('input_id').value = val;
+                            }
+                            if (key == 'name') {
+                                document.getElementById('input_name').value = val;
+                            }
+                            if (key == 'spec') {
+                                document.getElementById('input_spec').value = val;
+                            }
+                            if (key == 'degree') {
+                                document.getElementById('input_degree').value = val;
+                            }
+                            if (key == 'fees') {
+                                document.getElementById('input_fees').value = val;
+                            }
+
+                        })
+                        updateForm.addEventListener('submit', (e) => {
+                            updateBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i>';
+                            e.preventDefault();
+                            var updateFormData = $('#updateDocform').serialize();
+                            $.ajax({
+                                type: 'POST',
+                                url: '/doctor/update/',
+                                data: updateFormData,
+
+                                success: function(data) {
+                                    if (!data.err) {
+                                        notify('success', 'Doctor Updated Successfully')
+                                        setTimeout(() => {
+                                            $('body').load('#tbl_wrap')
+                                            declareUpdate = false
+                                            console.log(declareUpdate)
+                                        }, 1000)
+                                    } else {
+                                        notify('error', 'Something Went Wrong')
+                                        setTimeout(() => {
+                                            $('body').load('#tbl_wrap')
+                                            declareUpdate = false
+                                            console.log(declareUpdate)
+                                        }, 1000)
+                                    }
+                                },
+
+                                error: function() {
+                                    notify('error', 'Something Went Wrong')
+                                    setTimeout(() => {
+                                        $('body').load('#tbl_wrap')
+                                        declareUpdate = false
+                                        console.log(declareUpdate)
+                                    }, 1000)
+                                }
+
+                            })
+                        })
+
+                    },
+                    error: function(data) {
+                        console.log('error')
+                    }
+                });
+
+            })
+        }
+
+    }
+</script>
+
+<!-- doctor functions close -->
+
+<!-- Schedule Functions -->
+<script>
+    var declaredAdd2 = true
+    if (declaredAdd2 == true) {
+        let scheForm = $('#scheForm');
+        let tbl_sche = $('#docTable')
+        let scheformBtn = $('#formBtn')
+        toastr.hide();
+        scheForm.on('submit', (e) => {
+            e.preventDefault();
+            // scheformBtn.css({ "opacity": "0.4" })
+            // scheformBtn.html('<i class="fas fa-spinner fa-pulse"></i> Loading');
+            loading(scheformBtn)
+            var Form_Data = scheForm.serialize();
+            setTimeout(() => {
+                $.ajax({
+                    type: "POST",
+                    url: "/schedule/add",
+                    data: Form_Data,
+                    success: function(data) {
+                        if (!data.err) {
+                            unload(scheformBtn, 'ADD SCHEDULE')
+                            $('#scheForm').trigger("reset");
+                            notify('success', 'Schedule Added Successfully')
+                            setTimeout(() => {
+                                $('body').load('#tbl_wrap')
+                                declareUpdate == false
+                            }, 1000)
+                        } else {
+                            console.log(data.err)
+                            notify('error', 'Something Went Wrong')
+                            unload(scheformBtn, 'ADD SCHEDULE')
+                            setTimeout(() => {
+                                toastr.fadeOut()
+                            }, 1000)
+                        }
+
+                    },
+                    error: function(data) {
+
+                    }
+
+                })
+
+            }, 1000)
+
+        });
+
+    }
+</script>
+
+<script>
+    var declareUpdate2 = true;
+    console.log(declareUpdate2)
+    if (declareUpdate2 == true) {
+        let seditBtns = document.querySelectorAll('.editscheBtn');
+        let supdateForm = document.getElementById('updateScheform');
+        let supdateBtn = document.getElementById('updatescheduleBtn');
+        $('#closeScheupdate').on('click', () => {
+            $('#form_wraper').hide();
+        })
+        for (let i = 0; i < seditBtns.length; i++) {
+
+            seditBtns[i].addEventListener('click', function(e) {
+                e.preventDefault();
+                $('#form_wraper').show();
+                let url = seditBtns[i].getAttribute('href')
+                console.log(url)
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    success: function(data) {
+                        $.each(data, (key, val) => {
+                            if (key == 'schedule_id') {
+                                console.log(key + val)
+                                document.getElementById('input_id').value = val;
+                            }
+                            if (key == 'doctor_id') {
+                                document.getElementById('input_doctor_id').value = val;
+                            }
+                            if (key == 'day') {
+                                document.getElementById('input_day').value = val;
+                            }
+                            if (key == 'start_time') {
+                                document.getElementById('input_start_time').value = val;
+                            }
+                            if (key == 'end_time') {
+                                document.getElementById('input_end_time').value = val;
+                            }
+
+                        })
+                        supdateForm.addEventListener('submit', (e) => {
+                            supdateBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i>';
+                            // loadingDiv($('#tbdy'))
+                            e.preventDefault();
+                            var supdateFormData = $('#updateScheform').serialize();
+                            setTimeout(function() {
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '/schedule/update/',
+                                    data: supdateFormData,
+
+                                    success: function(data) {
+
+                                        supdateBtn.innerHTML = '<i class="fa-solid fa-rotate"></i>';
+                                        if (!data.err) {
+                                            notify('success', 'Schedule Updated Successfully')
+                                            setTimeout(() => {
+                                                $('body').load('#tbl_wrap')
+                                                declareUpdate2 = false
+                                                console.log(declareUpdate2)
+                                            }, 1000)
+                                        } else {
+                                            notify('error', 'Something Went Wrong')
+                                            setTimeout(() => {
+                                                $('body').load('#tbl_wrap')
+                                                declareUpdate2 = false
+                                                console.log(declareUpdate2)
+                                            }, 1000)
+                                        }
+                                    },
+
+                                    error: function() {
+                                        notify('error', 'Something Went Wrong')
+                                        setTimeout(() => {
+                                            $('body').load('#tbl_wrap')
+                                            declareUpdate2 = false
+                                            console.log(declareUpdate2)
+                                        }, 1000)
+                                    }
+
+                                })
+                            }, 2000)
+                        })
+
+                    },
+                    error: function(data) {
+                        console.log('error')
+                    }
+                });
+
+            })
+        }
+
+    }
+</script>
+
+<script>
+    var declareDel2 = true;
+    if (declareDel2 == true) {
+        let sdeleteBtns = document.querySelectorAll('.deleteBtn');
+        let sconfirmDelete = document.getElementById('confirmDelete')
+        let scloseModal = document.getElementById('model_close');
+        scloseModal.addEventListener('click', () => {
+            $('#modal').fadeOut();
+            setTimeout(() => {
+                $('#main_div').css({
+                    "opacity": "1"
+                })
+            }, 500)
+
+        })
+        for (let i = 0; i < sdeleteBtns.length; i++) {
+            sdeleteBtns[i].addEventListener('click', (e) => {
+                e.preventDefault();
+                $('#main_div').css({
+                    "opacity": "0.4"
+                })
+                $('#modal').fadeIn();
+                let url = sdeleteBtns[i].getAttribute('href');
+                sconfirmDelete.addEventListener('click', () => {
+                    sconfirmDelete.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Loading';
+                    setTimeout(function() {
+                        $.ajax({
+                            type: 'GET',
+                            url: url,
+                            success: function(data) {
+                                if (data == 'deleted') {
+                                    $('#modal').fadeOut();
+                                    $('#main_div').css({
+                                        "opacity": "1"
+                                    })
+                                    notify('success', 'Doctor deleted successfully')
+                                    setTimeout(() => {
+                                        $('body').load('#tbl_wrap')
+                                        declareDel2 = false
+                                    }, 500)
+                                }
+                            },
+                            error: function(data) {
+                                console.log('server error')
+                            }
+                        })
+                    }, 1000)
+                })
+
+            })
+
+        }
+    }
+</script>
+<!-- Schedule close -->
+
+
+<!-- datatable -->
+<script>
+    var declared = true;
+
+    $(document).ready(function() {
+        if (declared == true) {
+            var table = $('#example').DataTable({
+                    responsive: true
+                })
+                .columns.adjust()
+                .responsive.recalc();
+            declared = false
+        }
+    });
+</script>
+<!-- delete alert -->
+
+</body>
+
+</html>
