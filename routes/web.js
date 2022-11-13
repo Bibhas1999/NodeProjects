@@ -1,23 +1,12 @@
 import express from 'express';
 const router = express.Router();
 import UserController from '../controllers/userController.js'
-import InfoController from '../controllers/infoController.js'
 import AppController from '../controllers/appController.js'
 import Middleware from '../controllers/middleware/middleware.js'
 
 router.get('/', UserController.home);
 router.get('/login', UserController.login);
-router.get('/list',Middleware.isAuth, InfoController.showMemos);
-router.get('/list/add',Middleware.isAuth, InfoController.viewaddMemo);
-router.get('/list/add/:id',Middleware.isAuth, InfoController.vieweditMemo);
-router.get('/memo/delete/:id',Middleware.isAuth, InfoController.deleteMemo);
-router.post('/list/addOrEdit',Middleware.isAuth, (req,res) => {
-   if (req.body._id) {
-    InfoController.updateMemo(req,res)
-   } else {
-    InfoController.addMemo(req,res)   
-   }
-});
+
 router.get('/forgot/password/view',UserController.viewForgotPassword);
 router.post('/forgot/password/',UserController.forgotPassword);
 router.get('/reset/password/view/:id',UserController.resetPasswordView);

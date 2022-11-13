@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
-const db_url = 'mongodb://localhost:27017/Employee_db';
+import dotenv from 'dotenv'
+dotenv.config()
+const db_url = `${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+
 mongoose.connect(db_url, { useNewUrlParser: true,useUnifiedTopology: true, }, (err) => {
   if (!err) {
     console.log('MongoDB connected successfully');
