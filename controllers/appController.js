@@ -11,15 +11,12 @@ export const sendEmailApi = async(req,res) =>{
     let {name,email,msg} = req.body
     let sentMail = await sendMail(email,name)
     if(sentMail.hasOwnProperty("type") && sentMail.type !="success"){
-        let error = {
-            name:"MAIL_SENDING_ERROR",
-            message:"Mail sending failed"
-        }
-        throw(new Error(error))
+        throw("Mail sending failed")
     }else{
         return res.status(201).json({msg:"Mail sent successfully",status:201})
     }
    } catch (error) {
-      return res.status(500).json({error:error.name,msg:error.message})
+      console.log(error)
+      return res.status(500).json({error:error,msg:error})
    }
 }
